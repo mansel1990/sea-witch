@@ -1,9 +1,10 @@
-import Banner from "@/components/Banner";
-import Slider from "@/components/Slider";
+import React from "react";
+import Slider from "../components/Slider";
+import Banner from "../components/Banner";
 
-export default function HomeScreen() {
+const HomeScreen = () => {
   return (
-    <div className="flex flex-col gap-8">
+    <div>
       <Banner />
       <Slider title="Latest Movies Reviews" path="/trending/all/week" isLarge />
       <Slider
@@ -13,4 +14,6 @@ export default function HomeScreen() {
       />
     </div>
   );
-}
+};
+
+export default HomeScreen;
