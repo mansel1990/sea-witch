@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -18,14 +19,26 @@ import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import {
   SignedIn,
   SignedOut,
-  UserButton,
   SignInButton,
   useUser,
+  useClerk,
 } from "@clerk/nextjs";
 
 export function Header() {
   const pathname = usePathname();
   const { user } = useUser();
+  const { signOut } = useClerk();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleSignOut = () => {
+    signOut();
+  };
+
+  const navigationItems = [
+    { href: "/", label: "Home" },
+    { href: "/watchlist", label: "Watchlist" },
+    { href: "/my-reviews", label: "My Reviews" },
+  ];
 
   return (
     <header className="w-full fixed top-0 left-0 z-50 bg-background/80 backdrop-blur border-b border-border">
@@ -40,34 +53,23 @@ export function Header() {
           />
           <span className="font-bold text-lg tracking-tight">Sea Witch</span>
         </Link>
+
+        {/* Desktop Navigation */}
         <NavigationMenu className="hidden md:flex">
           <NavigationMenuList className="flex gap-2">
-            <NavigationMenuItem>
-              <Button
-                variant={pathname === "/" ? "secondary" : "ghost"}
-                asChild
-              >
-                <Link href="/">Home</Link>
-              </Button>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Button
-                variant={pathname === "/watchlist" ? "secondary" : "ghost"}
-                asChild
-              >
-                <Link href="/watchlist">Watchlist</Link>
-              </Button>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Button
-                variant={pathname === "/my-reviews" ? "secondary" : "ghost"}
-                asChild
-              >
-                <Link href="/my-reviews">My Reviews</Link>
-              </Button>
-            </NavigationMenuItem>
+            {navigationItems.map((item) => (
+              <NavigationMenuItem key={item.href}>
+                <Button
+                  variant={pathname === item.href ? "secondary" : "ghost"}
+                  asChild
+                >
+                  <Link href={item.href}>{item.label}</Link>
+                </Button>
+              </NavigationMenuItem>
+            ))}
           </NavigationMenuList>
         </NavigationMenu>
+
         <div className="flex items-center gap-2">
           <SignedOut>
             <SignInButton mode="modal">
@@ -85,18 +87,70 @@ export function Header() {
                   <AvatarFallback>{user?.firstName?.[0] ?? "U"}</AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link href="/profile">Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <UserButton afterSignOutUrl="/" />
+              <DropdownMenuContent align="end" className="w-32">
+                <DropdownMenuItem
+                  onClick={handleSignOut}
+                  className="cursor-pointer"
+                >
+                  Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SignedIn>
+
+          {/* Mobile Menu Button - Always visible on mobile */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="md:hidden"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {isMobileMenuOpen ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              )}
+            </svg>
+          </Button>
         </div>
       </nav>
+
+      {/* Mobile Navigation Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-background/95 backdrop-blur border-b border-border">
+          <div className="container mx-auto px-4 py-2">
+            <div className="flex flex-col gap-2">
+              {navigationItems.map((item) => (
+                <Button
+                  key={item.href}
+                  variant={pathname === item.href ? "secondary" : "ghost"}
+                  asChild
+                  className="justify-start"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Link href={item.href}>{item.label}</Link>
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
