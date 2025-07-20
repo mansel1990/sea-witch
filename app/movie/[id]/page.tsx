@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { fetchMovieById } from "@/lib/api/fetchMovieById";
-import TextRating from "@/components/TextRating";
 import { Button } from "@/components/ui/button";
 import { BookmarkPlus, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -37,8 +36,8 @@ export default function MoviePage() {
           const data = await fetchMovieById(movieId);
           setMovie(data);
         }
-      } catch (err: any) {
-        setError(err.message || "Unknown error");
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : String(err));
       } finally {
         setLoading(false);
       }
@@ -81,7 +80,7 @@ export default function MoviePage() {
             Movie Not Found
           </h1>
           <p className="text-gray-400">
-            The movie you're looking for doesn't exist.
+            The movie you&apos;re looking for doesn&apos;t exist.
           </p>
         </div>
       </div>
@@ -103,7 +102,6 @@ export default function MoviePage() {
           </Button>
         </Link>
       </div>
-
       {/* Hero Section with Poster as Full Background */}
       <div className="relative h-[70vh] w-full flex items-end overflow-hidden">
         {movie.poster_path && (
@@ -137,9 +135,6 @@ export default function MoviePage() {
                 {movie.title}
               </h1>
               <div className="flex items-center gap-4 mb-4">
-                {/* If you have vote_average, you can use it here */}
-                {/* <TextRating rating={movie.vote_average / 2} /> */}
-                {/* <span className="text-white/70">• {new Date(movie.release_date).getFullYear()}</span> */}
                 {movieState.viewed && (
                   <span className="text-green-400 font-medium">✓ Viewed</span>
                 )}
