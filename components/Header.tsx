@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -23,12 +23,31 @@ import {
   useUser,
   useClerk,
 } from "@clerk/nextjs";
+import SearchBar from "./SearchBar";
+import { Search as SearchIcon } from "lucide-react";
 
 export function Header() {
   const pathname = usePathname();
   const { user } = useUser();
   const { signOut } = useClerk();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Add this effect to handle user sign in
+  useEffect(() => {
+    if (user) {
+      const payload = {
+        clerkUserId: user.id,
+        email: user.primaryEmailAddress?.emailAddress,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        imageUrl: user.imageUrl,
+        username: user.username,
+      };
+      console.log("[Clerk User Sync] Payload to send to backend:", payload);
+      // TODO: Replace this with your API call to save user in DB
+      // await fetch('/api/save-user', { method: 'POST', body: JSON.stringify(payload) })
+    }
+  }, [user]);
 
   const handleSignOut = () => {
     signOut();
@@ -41,27 +60,35 @@ export function Header() {
   ];
 
   return (
-    <header className="w-full fixed top-0 left-0 z-50 bg-background/80 backdrop-blur border-b border-border">
-      <nav className="container mx-auto flex items-center justify-between py-2 px-4">
-        <Link href="/" className="flex items-center gap-2">
+    <header className="w-full fixed top-0 left-0 z-50 bg-black/90 backdrop-blur-sm border-b border-gray-800">
+      <nav className="container mx-auto flex items-center justify-between py-4 px-6">
+        <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/SeaWitchRed.svg"
+            src="/sea-witch.png"
             alt="Sea Witch Logo"
-            width={36}
-            height={36}
+            width={40}
+            height={40}
             priority
+            className="filter"
           />
-          <span className="font-bold text-lg tracking-tight">Sea Witch</span>
+          <span className="font-bold text-xl tracking-tight text-white">
+            Sea Witch
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
         <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList className="flex gap-2">
+          <NavigationMenuList className="flex gap-1">
             {navigationItems.map((item) => (
               <NavigationMenuItem key={item.href}>
                 <Button
-                  variant={pathname === item.href ? "secondary" : "ghost"}
+                  variant={pathname === item.href ? "default" : "ghost"}
                   asChild
+                  className={`${
+                    pathname === item.href
+                      ? "bg-white text-black hover:bg-gray-200"
+                      : "text-white hover:bg-gray-800 hover:text-white"
+                  } font-medium`}
                 >
                   <Link href={item.href}>{item.label}</Link>
                 </Button>
@@ -70,27 +97,52 @@ export function Header() {
           </NavigationMenuList>
         </NavigationMenu>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {/* Search Icon - mobile only */}
+          <Link href="/search" className="block lg:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-gray-800"
+            >
+              <SearchIcon className="w-5 h-5" />
+            </Button>
+          </Link>
+          {/* Search Bar - Hidden on mobile to save space */}
+          <div className="hidden lg:block">
+            <SearchBar />
+          </div>
+
           <SignedOut>
             <SignInButton mode="modal">
-              <Button variant="outline">Log in</Button>
+              <Button
+                variant="default"
+                className="bg-red-600 hover:bg-red-700 text-white font-medium"
+              >
+                Sign In
+              </Button>
             </SignInButton>
           </SignedOut>
           <SignedIn>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Avatar className="cursor-pointer">
+                <Avatar className="cursor-pointer border-2 border-gray-600 hover:border-white transition-colors">
                   <AvatarImage
                     src={user?.imageUrl}
                     alt={user?.fullName || "User"}
                   />
-                  <AvatarFallback>{user?.firstName?.[0] ?? "U"}</AvatarFallback>
+                  <AvatarFallback className="bg-gray-700 text-white">
+                    {user?.firstName?.[0] ?? "U"}
+                  </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-32">
+              <DropdownMenuContent
+                align="end"
+                className="w-40 bg-gray-900 border-gray-700"
+              >
                 <DropdownMenuItem
                   onClick={handleSignOut}
-                  className="cursor-pointer"
+                  className="cursor-pointer text-white hover:bg-gray-800 focus:bg-gray-800"
                 >
                   Sign out
                 </DropdownMenuItem>
@@ -98,11 +150,11 @@ export function Header() {
             </DropdownMenu>
           </SignedIn>
 
-          {/* Mobile Menu Button - Always visible on mobile */}
+          {/* Mobile Menu Button */}
           <Button
             variant="ghost"
             size="sm"
-            className="md:hidden"
+            className="md:hidden text-white hover:bg-gray-800"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             <svg
@@ -133,15 +185,24 @@ export function Header() {
 
       {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-background/95 backdrop-blur border-b border-border">
-          <div className="container mx-auto px-4 py-2">
+        <div className="md:hidden bg-black/95 backdrop-blur-sm border-b border-gray-800">
+          <div className="container mx-auto px-6 py-4">
+            {/* Mobile Search Bar */}
+            <div className="mb-4">
+              <SearchBar />
+            </div>
+
             <div className="flex flex-col gap-2">
               {navigationItems.map((item) => (
                 <Button
                   key={item.href}
-                  variant={pathname === item.href ? "secondary" : "ghost"}
+                  variant={pathname === item.href ? "default" : "ghost"}
                   asChild
-                  className="justify-start"
+                  className={`justify-start font-medium ${
+                    pathname === item.href
+                      ? "bg-white text-black hover:bg-gray-200"
+                      : "text-white hover:bg-gray-800 hover:text-white"
+                  }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Link href={item.href}>{item.label}</Link>
