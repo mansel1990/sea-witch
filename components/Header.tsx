@@ -26,6 +26,7 @@ import {
 import SearchBar from "./SearchBar";
 import { Search as SearchIcon } from "lucide-react";
 import { useAddUser } from "../lib/hooks/useAddUser";
+import { useGlobalStore } from "@/lib/store";
 
 export function Header() {
   const pathname = usePathname();
@@ -33,12 +34,14 @@ export function Header() {
   const { signOut } = useClerk();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { mutate: addUser, isSuccess } = useAddUser();
+  const setClerkUserId = useGlobalStore((state) => state.setClerkUserId);
 
   // Add this effect to handle user sign in
   useEffect(() => {
     if (user && user.id) {
       const localKey = `user_registered_${user.id}`;
       if (!localStorage.getItem(localKey)) {
+        setClerkUserId(user.id);
         const payload = {
           clerkUserId: user.id,
           email: user.primaryEmailAddress?.emailAddress || "",
@@ -52,9 +55,12 @@ export function Header() {
             localStorage.setItem(localKey, "true");
           },
         });
+      } else {
+        // Already registered, but ensure Zustand is in sync
+        setClerkUserId(user.id);
       }
     }
-  }, [user, addUser]);
+  }, [user, addUser, setClerkUserId]);
 
   const handleSignOut = () => {
     signOut();

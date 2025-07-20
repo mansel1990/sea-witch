@@ -5,11 +5,13 @@ import Link from "next/link";
 import { useMovies } from "@/lib/hooks/useMovies";
 import { Movie } from "@/lib/types/movie";
 
+const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
+
 function MovieCard({ movie }: { movie: Movie }) {
   return (
     <div className="bg-gray-900 rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-200">
       <img
-        src={movie.poster_path}
+        src={`${TMDB_IMAGE_BASE}${movie.poster_path}`}
         alt={movie.title}
         className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-200"
       />
