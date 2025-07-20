@@ -1,36 +1,55 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { movies } from "../../components/movies";
-import { generateImageUrl, ImageSizes } from "../../components/tmdb";
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import SearchBar from "../../components/SearchBar";
+import { useMovies } from "@/lib/hooks/useMovies";
+import { Movie } from "@/lib/types/movie";
+
+function MovieCard({ movie }: { movie: Movie }) {
+  return (
+    <div className="bg-gray-900 rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-200">
+      <img
+        src={movie.poster_path}
+        alt={movie.title}
+        className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-200"
+      />
+      <div className="p-3">
+        <h3 className="text-white font-semibold text-base truncate mb-1">
+          {movie.title}
+        </h3>
+      </div>
+    </div>
+  );
+}
 
 export default function SearchPage() {
+  const { data, isLoading, isError } = useMovies();
   const [query, setQuery] = useState("");
-  const [filteredMovies, setFilteredMovies] = useState(movies.results);
+  const [filteredMovies, setFilteredMovies] = useState<Movie[]>([]);
 
   useEffect(() => {
+    if (!data) return;
     if (!query.trim()) {
-      setFilteredMovies(movies.results);
+      setFilteredMovies(data);
       return;
     }
     const searchTerm = query.toLowerCase();
     setFilteredMovies(
-      movies.results.filter((movie) => {
-        const title = movie.title || movie.original_title || "";
-        const year = movie.release_date
-          ? new Date(movie.release_date).getFullYear().toString()
-          : "";
-        return (
-          title.toLowerCase().includes(searchTerm) ||
-          year.includes(searchTerm) ||
-          title.toLowerCase().startsWith(searchTerm)
-        );
+      data.filter((movie: Movie) => {
+        const title = movie.title || "";
+        return title.toLowerCase().includes(searchTerm);
       })
     );
-  }, [query]);
+  }, [query, data]);
+
+  if (isLoading)
+    return <div className="text-center text-white mt-16">Loading...</div>;
+  if (isError)
+    return (
+      <div className="text-center text-red-500 mt-16">
+        Failed to load movies.
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-black pt-24 px-4 pb-8">
@@ -38,12 +57,11 @@ export default function SearchPage() {
       <div className="fixed top-20 left-4 z-50">
         <Link href="/">
           <button className="bg-black/50 hover:bg-black/70 text-white border border-gray-600 hover:border-white transition-all duration-200 rounded-lg px-3 py-1 flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" />
             Back
           </button>
         </Link>
       </div>
-      {/* Search Bar and Results */}
+      {/* Search Bar */}
       <div className="max-w-2xl mx-auto mb-8">
         <div className="w-full">
           <input
@@ -56,8 +74,9 @@ export default function SearchPage() {
           />
         </div>
       </div>
+      {/* Movie Grid */}
       <div className="max-w-6xl mx-auto">
-        {filteredMovies.length === 0 ? (
+        {filteredMovies.length === 0 && query.trim() ? (
           <div className="text-center text-gray-400 mt-16 text-lg">
             No movies found for "{query}"
           </div>
@@ -67,25 +86,9 @@ export default function SearchPage() {
               <Link
                 key={movie.id}
                 href={`/movie/${movie.id}`}
-                className="group block bg-gray-900 rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-200"
+                className="group block"
               >
-                <img
-                  src={generateImageUrl(movie.poster_path, ImageSizes.poster)}
-                  alt={movie.title}
-                  className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-200"
-                />
-                <div className="p-3">
-                  <h3 className="text-white font-semibold text-base truncate mb-1">
-                    {movie.title}
-                  </h3>
-                  <div className="text-gray-400 text-xs flex items-center gap-2">
-                    {movie.release_date
-                      ? new Date(movie.release_date).getFullYear()
-                      : "N/A"}
-                    <span>•</span>
-                    <span>⭐ {movie.vote_average.toFixed(1)}</span>
-                  </div>
-                </div>
+                <MovieCard movie={movie} />
               </Link>
             ))}
           </div>

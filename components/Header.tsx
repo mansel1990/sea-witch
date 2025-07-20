@@ -25,29 +25,36 @@ import {
 } from "@clerk/nextjs";
 import SearchBar from "./SearchBar";
 import { Search as SearchIcon } from "lucide-react";
+import { useAddUser } from "../lib/hooks/useAddUser";
 
 export function Header() {
   const pathname = usePathname();
   const { user } = useUser();
   const { signOut } = useClerk();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { mutate: addUser, isSuccess } = useAddUser();
 
   // Add this effect to handle user sign in
   useEffect(() => {
-    if (user) {
-      const payload = {
-        clerkUserId: user.id,
-        email: user.primaryEmailAddress?.emailAddress,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        imageUrl: user.imageUrl,
-        username: user.username,
-      };
-      console.log("[Clerk User Sync] Payload to send to backend:", payload);
-      // TODO: Replace this with your API call to save user in DB
-      // await fetch('/api/save-user', { method: 'POST', body: JSON.stringify(payload) })
+    if (user && user.id) {
+      const localKey = `user_registered_${user.id}`;
+      if (!localStorage.getItem(localKey)) {
+        const payload = {
+          clerkUserId: user.id,
+          email: user.primaryEmailAddress?.emailAddress || "",
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+          imageUrl: user.imageUrl || "",
+          username: user.username || "",
+        };
+        addUser(payload, {
+          onSuccess: () => {
+            localStorage.setItem(localKey, "true");
+          },
+        });
+      }
     }
-  }, [user]);
+  }, [user, addUser]);
 
   const handleSignOut = () => {
     signOut();
