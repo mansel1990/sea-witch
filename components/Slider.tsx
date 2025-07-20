@@ -4,6 +4,7 @@ import { API_BASE_URL } from "@/lib/constants";
 import { Movie } from "@/lib/types/movie";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 
@@ -26,9 +27,9 @@ export default function Slider({ title, url }: SliderProps) {
         const res = await fetch(`${API_BASE_URL}${url}`);
         if (!res.ok) throw new Error("Failed to fetch movies");
         const data = await res.json();
-        setMovies(data.movies || data); // support both {movies: Movie[]} and Movie[]
-      } catch (err: any) {
-        setError(err.message || "Unknown error");
+        setMovies(data.movies || data);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : String(err));
       } finally {
         setLoading(false);
       }
@@ -39,7 +40,7 @@ export default function Slider({ title, url }: SliderProps) {
   const scroll = (direction: "left" | "right") => {
     const container = scrollRef.current;
     if (!container) return;
-    const scrollAmount = 320; // width of one card + gap
+    const scrollAmount = 320;
     container.scrollBy({
       left: direction === "left" ? -scrollAmount : scrollAmount,
       behavior: "smooth",
@@ -83,10 +84,13 @@ export default function Slider({ title, url }: SliderProps) {
             className="flex-shrink-0 w-40"
           >
             <div className="bg-gray-900 rounded-lg overflow-hidden shadow hover:shadow-xl transition-shadow duration-200">
-              <img
+              <Image
                 src={`${TMDB_IMAGE_BASE}${movie.poster_path}`}
                 alt={movie.title}
+                width={300}
+                height={450}
                 className="w-full h-60 object-cover"
+                priority={true}
               />
               <div className="p-2">
                 <h3 className="text-white text-sm font-semibold truncate">

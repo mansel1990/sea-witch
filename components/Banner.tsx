@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Movie } from "@/lib/types/movie";
+import { useEffect, useState, useMemo } from "react";
 import TextRating from "./TextRating";
 import { Button } from "./ui/button";
 import { ChevronLeft, ChevronRight, BookmarkPlus } from "lucide-react";
@@ -10,8 +9,8 @@ import { usePopularRecentMovies } from "@/lib/hooks/usePopularRecentMovies";
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 
 export default function Banner() {
-  const { data: movies, isLoading, isError } = usePopularRecentMovies();
-  const bannerMovies = movies?.slice(0, 5) || [];
+  const { data: movies } = usePopularRecentMovies();
+  const bannerMovies = useMemo(() => movies?.slice(0, 5) || [], [movies]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {

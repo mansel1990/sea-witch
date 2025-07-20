@@ -4,16 +4,20 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useMovies } from "@/lib/hooks/useMovies";
 import { Movie } from "@/lib/types/movie";
+import Image from "next/image";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 
 function MovieCard({ movie }: { movie: Movie }) {
   return (
     <div className="bg-gray-900 rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-200">
-      <img
+      <Image
         src={`${TMDB_IMAGE_BASE}${movie.poster_path}`}
         alt={movie.title}
+        width={300}
+        height={450}
         className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-200"
+        priority={true}
       />
       <div className="p-3">
         <h3 className="text-white font-semibold text-base truncate mb-1">
@@ -80,7 +84,7 @@ export default function SearchPage() {
       <div className="max-w-6xl mx-auto">
         {filteredMovies.length === 0 && query.trim() ? (
           <div className="text-center text-gray-400 mt-16 text-lg">
-            No movies found for "{query}"
+            No movies found for &quot;{query}&quot;
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
