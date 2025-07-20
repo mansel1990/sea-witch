@@ -203,7 +203,7 @@ export default function SearchBar() {
       {isOpen && query.trim().length > 0 && filteredMovies.length === 0 && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 p-4">
           <p className="text-gray-400 text-center">
-            No movies found for "{query}"
+            No movies found for {query}
           </p>
         </div>
       )}
