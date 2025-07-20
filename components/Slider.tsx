@@ -27,8 +27,8 @@ export default function Slider({ title, url }: SliderProps) {
         if (!res.ok) throw new Error("Failed to fetch movies");
         const data = await res.json();
         setMovies(data.movies || data); // support both {movies: Movie[]} and Movie[]
-      } catch (err: any) {
-        setError(err.message || "Unknown error");
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : String(err));
       } finally {
         setLoading(false);
       }
