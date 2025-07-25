@@ -1,9 +1,14 @@
 import { API_BASE_URL } from "../constants";
 
+export interface DeleteUserRatingResponse {
+  success?: boolean;
+  message?: string;
+}
+
 export async function deleteUserRating(
   clerkUserId: string,
   movieId: number
-): Promise<any> {
+): Promise<DeleteUserRatingResponse> {
   const res = await fetch(`${API_BASE_URL}/ratings/delete`, {
     method: "DELETE",
     headers: {

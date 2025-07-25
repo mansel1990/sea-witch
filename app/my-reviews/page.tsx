@@ -1,14 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import getUserRatings from "@/lib/api/getUserRatings";
+import getUserRatings, { UserRating } from "@/lib/api/getUserRatings";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 
 export default function MyReviewsPage() {
   const { user, isLoaded } = useUser();
-  const [ratings, setRatings] = useState<any[]>([]);
+  const [ratings, setRatings] = useState<UserRating[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export default function MyReviewsPage() {
       try {
         const data = await getUserRatings(user.id);
         setRatings(data);
-      } catch (e) {
+      } catch {
         setRatings([]);
       } finally {
         setLoading(false);
@@ -39,7 +39,7 @@ export default function MyReviewsPage() {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">My Reviews</h1>
       {ratings.length === 0 ? (
-        <p className="text-gray-400">You haven't rated any movies yet.</p>
+        <p className="text-gray-400">You haven&apos;t rated any movies yet.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {ratings.map((rating) => (

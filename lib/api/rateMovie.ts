@@ -1,10 +1,15 @@
 import { API_BASE_URL } from "../constants";
 
+export interface RateMovieResponse {
+  success?: boolean;
+  message?: string;
+}
+
 export async function rateMovie(
   clerkUserId: string,
   movieId: number,
   rating: number
-): Promise<any> {
+): Promise<RateMovieResponse> {
   const res = await fetch(`${API_BASE_URL}/ratings`, {
     method: "POST",
     headers: {

@@ -4,35 +4,24 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { fetchMovieById } from "@/lib/api/fetchMovieById";
 import { Button } from "@/components/ui/button";
-import { BookmarkPlus, Eye, EyeOff, ArrowLeft, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Movie } from "@/lib/types/movie";
-import RatingStars from "@/components/RatingStars";
-import { useUser } from "@clerk/nextjs";
-import rateMovie from "@/lib/api/rateMovie";
-import { useToast } from "@/components/ui/toast";
-import getUserRatings from "@/lib/api/getUserRatings";
 import MovieHero from "./MovieHero";
 import MovieActions from "./MovieActions";
 import MovieRating from "./MovieRating";
-import Loader from "@/components/ui/Loader";
-
-const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
-
-interface MovieState {
-  viewed: boolean;
-  userRating: number | null;
-}
+import { useUser } from "@clerk/nextjs";
+import rateMovie from "@/lib/api/rateMovie";
+import { useToast } from "@/components/ui/toast";
+import getUserRatings, { UserRating } from "@/lib/api/getUserRatings";
 
 export default function MoviePage() {
   const params = useParams();
   const movieId = params.id;
   const [movie, setMovie] = useState<Movie | null>(null);
-  const [movieState, setMovieState] = useState<MovieState>({
+  const [movieState, setMovieState] = useState({
     viewed: false,
-    userRating: null,
+    userRating: null as number | null,
   });
-  const [hoverRating, setHoverRating] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useUser();
@@ -63,9 +52,9 @@ export default function MoviePage() {
       if (!user?.id || !movieId) return;
       setRatingLoading(true);
       try {
-        const ratings = await getUserRatings(user.id);
+        const ratings: UserRating[] = await getUserRatings(user.id);
         const found = ratings.find(
-          (r: any) => String(r.movie_id) === String(movieId)
+          (r) => String(r.movie_id) === String(movieId)
         );
         if (found) {
           setMovieState((prev) => ({
@@ -74,7 +63,7 @@ export default function MoviePage() {
             viewed: true,
           }));
         }
-      } catch (err) {
+      } catch {
         // Optionally handle error
       } finally {
         setRatingLoading(false);
@@ -97,7 +86,7 @@ export default function MoviePage() {
       try {
         await rateMovie(user.id, movie.id, rating);
         showToast("Thank you for your rating");
-      } catch (err) {
+      } catch {
         showToast("Failed to submit rating.");
       }
     }
@@ -108,18 +97,10 @@ export default function MoviePage() {
     showToast("Your rating was removed.");
   };
 
-  const handleStarHover = (rating: number) => {
-    setHoverRating(rating);
-  };
-
-  const handleStarLeave = () => {
-    setHoverRating(null);
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader />
+        Loading...
       </div>
     );
   }
@@ -148,7 +129,6 @@ export default function MoviePage() {
             size="sm"
             className="bg-black/50 hover:bg-black/70 text-white border border-gray-600 hover:border-white transition-all duration-200"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
         </Link>
