@@ -1,6 +1,7 @@
 import { API_BASE_URL } from "../constants";
 
 export interface SearchMovieResult {
+  original_title: string;
   id: number;
   title: string;
   overview: string;

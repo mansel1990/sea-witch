@@ -33,7 +33,7 @@ export function Header() {
   const { user } = useUser();
   const { signOut } = useClerk();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { mutate: addUser, isSuccess } = useAddUser();
+  const { mutate: addUser } = useAddUser();
   const setClerkUserId = useGlobalStore((state) => state.setClerkUserId);
 
   // Add this effect to handle user sign in

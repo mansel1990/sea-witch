@@ -1,10 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { API_BASE_URL } from "@/lib/constants";
 import { Movie } from "@/lib/types/movie";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Loader from "@/components/ui/Loader";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";

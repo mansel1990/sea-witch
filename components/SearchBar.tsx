@@ -1,30 +1,19 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
-import { Button } from "./ui/button";
 import { generateImageUrl, ImageSizes } from "./tmdb";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import searchMovies from "@/lib/api/searchMovies";
-
-interface Movie {
-  id: number;
-  title: string;
-  original_title: string;
-  overview: string;
-  backdrop_path: string;
-  poster_path: string;
-  release_date: string;
-  vote_average: number;
-}
+import { SearchMovieResult } from "@/lib/api/searchMovies";
 
 export default function SearchBar() {
   const { user } = useUser();
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [filteredMovies, setFilteredMovies] = useState<Movie[]>([]);
+  const [filteredMovies, setFilteredMovies] = useState<SearchMovieResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +34,6 @@ export default function SearchBar() {
       }
       return;
     }
-    setLoading(true);
     setError(null);
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     if (abortController.current) {
@@ -53,6 +41,7 @@ export default function SearchBar() {
       abortController.current = null;
     }
     debounceTimeout.current = setTimeout(() => {
+      setLoading(true);
       const controller = new AbortController();
       abortController.current = controller;
       searchMovies(query, user.id, controller.signal)
@@ -96,7 +85,7 @@ export default function SearchBar() {
   };
 
   // Handle movie selection
-  const handleMovieSelect = (movie: Movie) => {
+  const handleMovieSelect = (movie: SearchMovieResult) => {
     setIsOpen(false);
     setQuery("");
     setSelectedIndex(-1);

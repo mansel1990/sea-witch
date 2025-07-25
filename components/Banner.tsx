@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { Button } from "./ui/button";
-import { ChevronLeft, ChevronRight, BookmarkPlus } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { usePopularRecentMovies } from "@/lib/hooks/usePopularRecentMovies";
 import { useRouter } from "next/navigation";
 

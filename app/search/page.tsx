@@ -1,89 +1,49 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
-import { Movie } from "@/lib/types/movie";
 import Image from "next/image";
 import { useUser, SignInButton } from "@clerk/nextjs";
-import searchMovies from "@/lib/api/searchMovies";
+import searchMovies, { SearchMovieResult } from "@/lib/api/searchMovies";
 import Loader from "@/components/ui/Loader";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 
-function MovieCard({ movie }: { movie: Movie }) {
-  return (
-    <div className="bg-gray-900 rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-200">
-      <Image
-        src={`${TMDB_IMAGE_BASE}${movie.poster_path}`}
-        alt={movie.title}
-        width={300}
-        height={450}
-        className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-200"
-        priority={true}
-      />
-      <div className="p-3">
-        <h3 className="text-white font-semibold text-base truncate mb-1">
-          {movie.title}
-        </h3>
-      </div>
-    </div>
-  );
-}
-
 export default function SearchPage() {
   const { user, isLoaded } = useUser();
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<Movie[]>([]);
+  const [results, setResults] = useState<SearchMovieResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
-  const abortController = useRef<AbortController | null>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (!user || !query.trim()) {
+  // Debounced search API call
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+    setError(null);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!user || !value.trim()) {
       setResults([]);
-      setError(null);
       setLoading(false);
-      if (abortController.current) {
-        abortController.current.abort();
-        abortController.current = null;
-      }
       return;
     }
-    setLoading(true);
-    setError(null);
-    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-    if (abortController.current) {
-      abortController.current.abort();
-      abortController.current = null;
-    }
-    debounceTimeout.current = setTimeout(() => {
-      const controller = new AbortController();
-      abortController.current = controller;
-      searchMovies(query, user.id, controller.signal)
+    debounceRef.current = setTimeout(() => {
+      setLoading(true);
+      searchMovies(value, user.id)
         .then((data) => {
           setResults(data);
           setLoading(false);
         })
-        .catch((err) => {
-          if (err.name !== "AbortError") {
-            setError("Failed to fetch results");
-            setLoading(false);
-          }
+        .catch(() => {
+          setError("Failed to fetch results");
+          setLoading(false);
         });
     }, 500);
-    return () => {
-      if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-      if (abortController.current) abortController.current.abort();
-    };
-  }, [query, user]);
+  };
 
   if (!isLoaded) {
-    return (
-      <div className="text-center text-white mt-16">
-        <Loader />
-      </div>
-    );
+    return <div className="text-center text-white mt-16">Loading...</div>;
   }
 
   if (!user) {
@@ -103,13 +63,6 @@ export default function SearchPage() {
     );
   }
 
-  if (loading)
-    return (
-      <div className="text-center text-white mt-16">
-        <Loader />
-      </div>
-    );
-
   return (
     <div className="min-h-screen bg-black pt-24 px-4 pb-8">
       {/* Back Button */}
@@ -127,14 +80,19 @@ export default function SearchPage() {
             type="text"
             placeholder="Search movies..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={handleSearchChange}
             className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors text-lg"
             autoFocus
           />
         </div>
       </div>
       {/* Movie Grid */}
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto relative">
+        {loading && query.trim() && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-30">
+            <Loader overlay={false} />
+          </div>
+        )}
         {error && (
           <div className="text-center text-red-500 mt-16 text-lg">{error}</div>
         )}
@@ -143,14 +101,32 @@ export default function SearchPage() {
             No movies found for &quot;{query}&quot;
           </div>
         )}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        <div
+          className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 ${
+            loading && query.trim() ? "opacity-50 pointer-events-none" : ""
+          }`}
+        >
           {results.map((movie) => (
             <Link
               key={movie.id}
               href={`/movie/${movie.id}`}
               className="group block"
             >
-              <MovieCard movie={movie} />
+              <div className="bg-gray-900 rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-200">
+                <Image
+                  src={`${TMDB_IMAGE_BASE}${movie.poster_path}`}
+                  alt={movie.title}
+                  width={300}
+                  height={450}
+                  className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-200"
+                  priority={true}
+                />
+                <div className="p-3">
+                  <h3 className="text-white font-semibold text-base truncate mb-1">
+                    {movie.title}
+                  </h3>
+                </div>
+              </div>
             </Link>
           ))}
         </div>

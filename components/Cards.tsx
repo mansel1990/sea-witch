@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { generateImageUrl, ImageSizes } from "./tmdb";
 
 type Media = {

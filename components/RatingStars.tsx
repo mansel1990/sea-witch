@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Trash2 } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
 import { useToast } from "./ui/toast";
 import deleteUserRating from "@/lib/api/deleteUserRating";
 
@@ -37,7 +36,7 @@ export default function RatingStars({
       await deleteUserRating(clerkUserId, movieId);
       showToast("Your rating was removed.");
       if (onDelete) onDelete();
-    } catch (err) {
+    } catch {
       showToast("Failed to delete rating.");
     }
   };

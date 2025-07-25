@@ -1,18 +1,5 @@
 import { Star } from "lucide-react";
 
-const labels: Record<number, string> = {
-  0.5: "Useless",
-  1: "Useless+",
-  1.5: "Poor",
-  2: "Poor+",
-  2.5: "Ok",
-  3: "Ok+",
-  3.5: "Good",
-  4: "Good+",
-  4.5: "Excellent",
-  5: "Excellent+",
-};
-
 export default function TextRating({ rating }: { rating: number }) {
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.5;
