@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Header } from "../components/Header";
 import ReactQueryProvider from "../components/ReactQueryProvider";
+import { ToastProvider } from "../components/ui/toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,8 +44,10 @@ export default function RootLayout({
       >
         <ReactQueryProvider>
           <ClerkProvider>
-            <Header />
-            <main className="pt-16">{children}</main>
+            <ToastProvider>
+              <Header />
+              <main className="pt-16">{children}</main>
+            </ToastProvider>
           </ClerkProvider>
         </ReactQueryProvider>
       </body>

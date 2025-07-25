@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import TextRating from "./TextRating";
 import { Button } from "./ui/button";
 import { ChevronLeft, ChevronRight, BookmarkPlus } from "lucide-react";
 import { usePopularRecentMovies } from "@/lib/hooks/usePopularRecentMovies";
+import { useRouter } from "next/navigation";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 
@@ -12,6 +12,7 @@ export default function Banner() {
   const { data: movies } = usePopularRecentMovies();
   const bannerMovies = useMemo(() => movies?.slice(0, 5) || [], [movies]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     if (!bannerMovies.length) return;
@@ -36,6 +37,23 @@ export default function Banner() {
 
   return (
     <div className="relative h-[70vh] min-h-[500px] overflow-hidden group">
+      {/* Banner Intro Content */}
+      <div className="absolute top-0 left-0 w-full z-30 flex justify-start pt-4 md:pt-8 px-2 md:px-8 pointer-events-none">
+        <div className="bg-black/40 rounded-lg w-full p-4 md:p-6 flex items-start gap-4 pointer-events-auto">
+          <span className="w-2 h-8 mt-1 bg-red-600 rounded"></span>
+          <div>
+            <h1 className="text-xl md:text-2xl font-extrabold text-white mb-1 drop-shadow-lg">
+              Welcome to your movie hub!
+            </h1>
+            <p className="text-sm md:text-base text-gray-200 font-medium leading-relaxed">
+              Here, you can rate and review films you’ve watched, share your
+              thoughts with friends and the community,
+              <br />
+              and discover new recommendations tailored to your tastes.
+            </p>
+          </div>
+        </div>
+      </div>
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center transition-all duration-700 ease-in-out"
@@ -65,32 +83,33 @@ export default function Banner() {
       {/* Content */}
       <div className="relative z-10 px-4 md:px-8 lg:px-16 pb-16 w-full max-w-4xl h-full flex items-end">
         <div className="w-full">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg transition-all duration-700">
-            {currentMovie?.title}
-          </h1>
-          <p className="mb-4 text-lg text-white/90 line-clamp-3 max-w-2xl drop-shadow transition-all duration-700">
-            {currentMovie?.overview}
-          </p>
-          <div className="flex items-center gap-4 mb-6">
-            <TextRating rating={3.5} />
-            <span className="text-white/70 text-sm">• 2h 15m</span>
-            <span className="text-white/70 text-sm">• 2019</span>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              variant="default"
-              className="bg-red-600 text-white hover:bg-red-700 font-semibold px-8 py-3 text-lg transition-all duration-200 cursor-pointer"
-            >
-              <BookmarkPlus className="w-5 h-5 mr-2" />
-              Add to Watchlist
-            </Button>
-            <Button
-              variant="outline"
-              className="border-white text-white hover:bg-white hover:text-black font-semibold px-8 py-3 text-lg transition-all duration-200"
-            >
-              ⭐ Review
-            </Button>
-          </div>
+          <>
+            <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg transition-all duration-700">
+              {currentMovie?.title}
+            </h1>
+            <p className="mb-4 text-lg text-white/90 line-clamp-3 max-w-2xl drop-shadow transition-all duration-700">
+              {currentMovie?.overview}
+            </p>
+            <div className="flex items-center gap-4 mb-6">
+              <span className="text-white/70 text-sm">
+                {currentMovie?.release_date
+                  ? new Date(currentMovie.release_date).getFullYear()
+                  : ""}
+              </span>
+            </div>
+            <div className="mb-6">
+              <Button
+                className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg"
+                onClick={() => {
+                  if (currentMovie) {
+                    router.push(`/movie/${currentMovie.id}`);
+                  }
+                }}
+              >
+                Rate this movie
+              </Button>
+            </div>
+          </>
         </div>
       </div>
       {/* Dots Indicator */}

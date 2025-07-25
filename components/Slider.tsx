@@ -4,6 +4,8 @@ import { API_BASE_URL } from "@/lib/constants";
 import { Movie } from "@/lib/types/movie";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Loader from "@/components/ui/Loader";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 
@@ -46,8 +48,12 @@ export default function Slider({ title, url }: SliderProps) {
     });
   };
 
-  if (loading) return <div className="text-white px-4">Loading...</div>;
-  if (error) return <div className="text-red-500 px-4">{error}</div>;
+  if (loading || error)
+    return (
+      <div className="px-4">
+        <PageSkeleton />
+      </div>
+    );
   if (!movies.length) return null;
 
   return (
