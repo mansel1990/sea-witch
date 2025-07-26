@@ -5,15 +5,20 @@ import { BookmarkPlus, Eye, EyeOff } from "lucide-react";
 export default function MovieActions({
   viewed,
   toggleViewed,
+  onAddToWatchlist,
   children,
 }: {
   viewed: boolean;
   toggleViewed: () => void;
+  onAddToWatchlist: () => void;
   children?: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-center">
-      <Button className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 text-sm sm:text-base">
+      <Button
+        className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 text-sm sm:text-base cursor-pointer"
+        onClick={onAddToWatchlist}
+      >
         <BookmarkPlus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
         Add to Watchlist
       </Button>

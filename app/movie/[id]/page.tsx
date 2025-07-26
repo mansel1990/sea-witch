@@ -13,6 +13,7 @@ import { useUser } from "@clerk/nextjs";
 import rateMovie from "@/lib/api/rateMovie";
 import { useToast } from "@/components/ui/toast";
 import getUserRatings, { UserRating } from "@/lib/api/getUserRatings";
+import { addToWatchlist } from "@/lib/api/addToWatchlist";
 
 export default function MoviePage() {
   const params = useParams();
@@ -97,6 +98,20 @@ export default function MoviePage() {
     showToast("Your rating was removed.");
   };
 
+  const handleAddToWatchlist = async () => {
+    if (!user?.id || !movie) {
+      showToast("Please log in to add movies to your watchlist.");
+      return;
+    }
+
+    try {
+      await addToWatchlist(user.id, movie.id);
+      showToast("Movie added to watchlist successfully!");
+    } catch {
+      showToast("Failed to add movie to watchlist.");
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -142,6 +157,7 @@ export default function MoviePage() {
             <MovieActions
               viewed={movieState.viewed}
               toggleViewed={toggleViewed}
+              onAddToWatchlist={handleAddToWatchlist}
             />
           </div>
         </div>
