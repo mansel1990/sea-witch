@@ -39,4 +39,27 @@ export async function searchMovies(
   return Array.isArray(data) ? data : [];
 }
 
+export async function semanticSearchMovies(
+  description: string,
+  clerkUserId: string,
+  signal?: AbortSignal
+): Promise<SearchMovieResult[]> {
+  if (!description.trim()) return [];
+  const url = "https://trailer-production.up.railway.app/semantic-search";
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      accept: "application/json",
+    },
+    body: JSON.stringify({
+      description: description,
+    }),
+    signal,
+  });
+  if (!res.ok) throw new Error("Failed to fetch semantic search results");
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+}
+
 export default searchMovies;

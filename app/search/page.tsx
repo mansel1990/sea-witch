@@ -4,10 +4,15 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useUser, SignInButton } from "@clerk/nextjs";
-import searchMovies, { SearchMovieResult } from "@/lib/api/searchMovies";
+import searchMovies, {
+  SearchMovieResult,
+  semanticSearchMovies,
+} from "@/lib/api/searchMovies";
 import Loader from "@/components/ui/Loader";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
+
+type SearchMode = "regular" | "semantic";
 
 export default function SearchPage() {
   const { user, isLoaded } = useUser();
@@ -15,6 +20,7 @@ export default function SearchPage() {
   const [results, setResults] = useState<SearchMovieResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchMode, setSearchMode] = useState<SearchMode>("regular");
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Debounced search API call
@@ -30,7 +36,9 @@ export default function SearchPage() {
     }
     debounceRef.current = setTimeout(() => {
       setLoading(true);
-      searchMovies(value, user.id)
+      const searchFunction =
+        searchMode === "semantic" ? semanticSearchMovies : searchMovies;
+      searchFunction(value, user.id)
         .then((data) => {
           setResults(data);
           setLoading(false);
@@ -40,6 +48,13 @@ export default function SearchPage() {
           setLoading(false);
         });
     }, 500);
+  };
+
+  const handleSearchModeChange = (mode: SearchMode) => {
+    setSearchMode(mode);
+    setQuery("");
+    setResults([]);
+    setError(null);
   };
 
   if (!isLoaded) {
@@ -73,19 +88,57 @@ export default function SearchPage() {
           </button>
         </Link>
       </div>
+
+      {/* Search Mode Tabs */}
+      <div className="max-w-2xl mx-auto mb-6">
+        <div className="flex bg-gray-800 rounded-lg p-1">
+          <button
+            onClick={() => handleSearchModeChange("regular")}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+              searchMode === "regular"
+                ? "bg-red-600 text-white"
+                : "text-gray-300 hover:text-white"
+            }`}
+          >
+            Regular Search
+          </button>
+          <button
+            onClick={() => handleSearchModeChange("semantic")}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+              searchMode === "semantic"
+                ? "bg-red-600 text-white"
+                : "text-gray-300 hover:text-white"
+            }`}
+          >
+            Free Word Search
+          </button>
+        </div>
+      </div>
+
       {/* Search Bar */}
       <div className="max-w-2xl mx-auto mb-8">
         <div className="w-full">
           <input
             type="text"
-            placeholder="Search movies..."
+            placeholder={
+              searchMode === "semantic"
+                ? "Describe the movie you're looking for..."
+                : "Search movies..."
+            }
             value={query}
             onChange={handleSearchChange}
             className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors text-lg"
             autoFocus
           />
         </div>
+        {searchMode === "semantic" && (
+          <p className="text-gray-400 text-sm mt-2 text-center">
+            Try describing movies like: &quot;A thrilling action movie with car
+            chases and explosions&quot;
+          </p>
+        )}
       </div>
+
       {/* Movie Grid */}
       <div className="max-w-6xl mx-auto relative">
         {loading && query.trim() && (
