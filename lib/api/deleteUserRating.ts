@@ -6,7 +6,7 @@ export interface DeleteUserRatingResponse {
 }
 
 export async function deleteUserRating(
-  clerkUserId: string,
+  userId: string,
   movieId: number
 ): Promise<DeleteUserRatingResponse> {
   const res = await fetch(`${API_BASE_URL}/ratings/delete`, {
@@ -16,7 +16,7 @@ export async function deleteUserRating(
       accept: "application/json",
     },
     body: JSON.stringify({
-      clerk_user_id: clerkUserId,
+      user_id: userId,
       movie_id: movieId,
       rating: 0,
     }),

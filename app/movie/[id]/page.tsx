@@ -9,7 +9,7 @@ import { Movie } from "@/lib/types/movie";
 import MovieHero from "./MovieHero";
 import MovieActions from "./MovieActions";
 import MovieRating from "./MovieRating";
-import { useUser } from "@clerk/nextjs";
+import { authClient } from "@/lib/auth-client";
 import rateMovie from "@/lib/api/rateMovie";
 import { useToast } from "@/components/ui/toast";
 import getUserRatings, { UserRating } from "@/lib/api/getUserRatings";
@@ -25,7 +25,8 @@ export default function MoviePage() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useUser();
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
   const { showToast } = useToast();
   const [ratingLoading, setRatingLoading] = useState(false);
 
@@ -171,7 +172,7 @@ export default function MoviePage() {
             onDelete={
               movieState.userRating !== null ? handleDeleteRating : undefined
             }
-            clerkUserId={user?.id}
+            userId={user?.id}
             movieId={movie?.id}
             loading={ratingLoading}
             title="Rate this movie"

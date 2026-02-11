@@ -2,7 +2,7 @@ import { API_BASE_URL } from "../constants";
 
 export interface WatchlistMovie {
   id: number;
-  clerk_user_id: string;
+  user_id: string;
   movie_id: number;
   created_at: string;
   movie_title: string;
@@ -16,9 +16,9 @@ export interface WatchlistMovie {
 }
 
 export async function getUserWatchlist(
-  clerkUserId: string
+  userId: string
 ): Promise<WatchlistMovie[]> {
-  const res = await fetch(`${API_BASE_URL}/watchlist/${clerkUserId}`, {
+  const res = await fetch(`${API_BASE_URL}/watchlist/${userId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

@@ -16,14 +16,14 @@ interface PreferenceCategory {
 }
 
 export default function UserPreferencesSlider() {
-  const clerkUserId = useGlobalStore((state) => state.clerkUserId);
+  const userId = useGlobalStore((state) => state.userId);
   const [preferences, setPreferences] = useState<PreferenceCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchUserPreferences() {
-      if (!clerkUserId) {
+      if (!userId) {
         setLoading(false);
         return;
       }
@@ -32,7 +32,7 @@ export default function UserPreferencesSlider() {
       setError(null);
       try {
         const res = await fetch(
-          `${API_BASE_URL}/user_preferences_movies/${clerkUserId}`
+          `${API_BASE_URL}/user_preferences_movies/${userId}`
         );
         if (!res.ok) throw new Error("Failed to fetch user preferences");
         const data = await res.json();
@@ -45,9 +45,9 @@ export default function UserPreferencesSlider() {
     }
 
     fetchUserPreferences();
-  }, [clerkUserId]);
+  }, [userId]);
 
-  if (!clerkUserId) return null;
+  if (!userId) return null;
   if (loading) return <PageSkeleton />;
   if (error || !preferences.length) return null;
 

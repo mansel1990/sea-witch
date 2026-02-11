@@ -6,9 +6,9 @@ export interface UserSummary {
 }
 
 export async function getUserSummary(
-  clerkUserId: string
+  userId: string
 ): Promise<UserSummary> {
-  const res = await fetch(`${API_BASE_URL}/user_summary/${clerkUserId}`, {
+  const res = await fetch(`${API_BASE_URL}/user_summary/${userId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

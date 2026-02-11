@@ -6,12 +6,12 @@ export interface RemoveFromWatchlistResponse {
 }
 
 export interface RemoveFromWatchlistRequest {
-  clerk_user_id: string;
+  user_id: string;
   movie_id: number;
 }
 
 export async function removeFromWatchlist(
-  clerkUserId: string,
+  userId: string,
   movieId: number
 ): Promise<RemoveFromWatchlistResponse> {
   const res = await fetch(`${API_BASE_URL}/remove_from_watchlist`, {
@@ -21,7 +21,7 @@ export async function removeFromWatchlist(
       accept: "application/json",
     },
     body: JSON.stringify({
-      clerk_user_id: clerkUserId,
+      user_id: userId,
       movie_id: movieId,
     }),
   });

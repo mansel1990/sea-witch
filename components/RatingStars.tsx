@@ -9,7 +9,7 @@ interface RatingStarsProps {
   title?: string;
   className?: string;
   onDelete?: () => void;
-  clerkUserId?: string;
+  userId?: string;
   movieId?: number;
 }
 
@@ -21,19 +21,19 @@ export default function RatingStars({
   title,
   className = "",
   onDelete,
-  clerkUserId,
+  userId,
   movieId,
 }: RatingStarsProps) {
   const [hoverRating, setHoverRating] = useState<number | null>(null);
   const { showToast } = useToast();
 
   const handleDelete = async () => {
-    if (!clerkUserId || !movieId) {
+    if (!userId || !movieId) {
       showToast("Missing user or movie info");
       return;
     }
     try {
-      await deleteUserRating(clerkUserId, movieId);
+      await deleteUserRating(userId, movieId);
       showToast("Your rating was removed.");
       if (onDelete) onDelete();
     } catch {

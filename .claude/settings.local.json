@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(dir:*)",
+      "WebFetch(domain:www.better-auth.com)",
+      "Bash(npm uninstall:*)",
+      "Bash(openssl rand:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(nslookup:*)",
+      "Bash(node:*)",
+      "Bash(npm update:*)",
+      "Bash(set NODE_OPTIONS=\"--dns-result-order=ipv4first\")",
+      "Bash(nvm:*)",
+      "Bash(where:*)"
+    ]
+  }
+}

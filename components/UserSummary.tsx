@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs";
+import { authClient } from "@/lib/auth-client";
 import { getUserSummary, type UserSummary } from "@/lib/api/getUserSummary";
 import { useToast } from "@/components/ui/toast";
 import { Film } from "lucide-react";
 
 export default function UserSummary() {
-  const { user } = useUser();
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
   const { showToast } = useToast();
   const [summary, setSummary] = useState<UserSummary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,7 +26,6 @@ export default function UserSummary() {
         setSummary(data);
       } catch (error) {
         console.error("Failed to fetch user summary:", error);
-        // Silently handle error - don't show toast
       } finally {
         setLoading(false);
       }
@@ -59,19 +59,21 @@ export default function UserSummary() {
 
   if (!summary) return null;
 
+  const displayName = user.name?.split(" ")[0] || "Movie Lover";
+  const initial = user.name?.charAt(0) || user.email?.charAt(0)?.toUpperCase() || "U";
+
   return (
     <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-xl p-6 mb-8 border border-gray-700/50">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center">
           <span className="text-white font-bold text-sm">
-            {user.firstName?.charAt(0) ||
-              user.emailAddresses[0]?.emailAddress.charAt(0).toUpperCase()}
+            {initial}
           </span>
         </div>
         <div>
           <h2 className="text-xl font-bold text-white">
-            Welcome back, {user.firstName || "Movie Lover"}!
+            Welcome back, {displayName}!
           </h2>
           <p className="text-gray-400 text-sm">
             Here&apos;s your movie journey summary

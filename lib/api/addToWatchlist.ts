@@ -6,12 +6,12 @@ export interface AddToWatchlistResponse {
 }
 
 export interface AddToWatchlistRequest {
-  clerk_user_id: string;
+  user_id: string;
   movie_id: number;
 }
 
 export async function addToWatchlist(
-  clerkUserId: string,
+  userId: string,
   movieId: number
 ): Promise<AddToWatchlistResponse> {
   const res = await fetch(`${API_BASE_URL}/watchlist`, {
@@ -21,7 +21,7 @@ export async function addToWatchlist(
       accept: "application/json",
     },
     body: JSON.stringify({
-      clerk_user_id: clerkUserId,
+      user_id: userId,
       movie_id: movieId,
     }),
   });

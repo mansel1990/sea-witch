@@ -11,10 +11,10 @@ export interface UserPreferencesResponse {
 }
 
 export async function getUserPreferences(
-  clerkUserId: string
+  userId: string
 ): Promise<PreferenceCategory[]> {
   const res = await fetch(
-    `${API_BASE_URL}/user_preferences_movies/${clerkUserId}`,
+    `${API_BASE_URL}/user_preferences_movies/${userId}`,
     {
       method: "GET",
       headers: {

@@ -2,7 +2,7 @@ import { API_BASE_URL } from "../constants";
 
 export interface UserRating {
   id: number;
-  clerk_user_id: string;
+  user_id: string;
   movie_id: number;
   rating: number;
   created_at: string;
@@ -19,9 +19,9 @@ export interface UserRating {
 }
 
 export async function getUserRatings(
-  clerkUserId: string
+  userId: string
 ): Promise<UserRating[]> {
-  const res = await fetch(`${API_BASE_URL}/ratings/${clerkUserId}`, {
+  const res = await fetch(`${API_BASE_URL}/ratings/${userId}`, {
     method: "GET",
     headers: {
       accept: "application/json",

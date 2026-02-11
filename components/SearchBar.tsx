@@ -5,12 +5,13 @@ import { useState, useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
 import { generateImageUrl, ImageSizes } from "./tmdb";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { authClient } from "@/lib/auth-client";
 import searchMovies from "@/lib/api/searchMovies";
 import { SearchMovieResult } from "@/lib/api/searchMovies";
 
 export default function SearchBar() {
-  const { user } = useUser();
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [filteredMovies, setFilteredMovies] = useState<SearchMovieResult[]>([]);

@@ -16,13 +16,7 @@ import {
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  useUser,
-  useClerk,
-} from "@clerk/nextjs";
+import { authClient } from "@/lib/auth-client";
 import SearchBar from "./SearchBar";
 import { Search as SearchIcon } from "lucide-react";
 import { useAddUser } from "../lib/hooks/useAddUser";
@@ -30,25 +24,24 @@ import { useGlobalStore } from "@/lib/store";
 
 export function Header() {
   const pathname = usePathname();
-  const { user } = useUser();
-  const { signOut } = useClerk();
+  const { data: session } = authClient.useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { mutate: addUser } = useAddUser();
-  const setClerkUserId = useGlobalStore((state) => state.setClerkUserId);
+  const setUserId = useGlobalStore((state) => state.setUserId);
 
-  // Add this effect to handle user sign in
   useEffect(() => {
-    if (user && user.id) {
+    if (session?.user) {
+      const user = session.user;
       const localKey = `user_registered_${user.id}`;
       if (!localStorage.getItem(localKey)) {
-        setClerkUserId(user.id);
+        setUserId(user.id);
         const payload = {
-          clerkUserId: user.id,
-          email: user.primaryEmailAddress?.emailAddress || "",
-          firstName: user.firstName || "",
-          lastName: user.lastName || "",
-          imageUrl: user.imageUrl || "",
-          username: user.username || "",
+          userId: user.id,
+          email: user.email || "",
+          firstName: user.name?.split(" ")[0] || "",
+          lastName: user.name?.split(" ").slice(1).join(" ") || "",
+          imageUrl: user.image || "",
+          username: user.name || "",
         };
         addUser(payload, {
           onSuccess: () => {
@@ -56,14 +49,13 @@ export function Header() {
           },
         });
       } else {
-        // Already registered, but ensure Zustand is in sync
-        setClerkUserId(user.id);
+        setUserId(user.id);
       }
     }
-  }, [user, addUser, setClerkUserId]);
+  }, [session, addUser, setUserId]);
 
-  const handleSignOut = () => {
-    signOut();
+  const handleSignOut = async () => {
+    await authClient.signOut();
   };
 
   const navigationItems = [
@@ -126,26 +118,24 @@ export function Header() {
             <SearchBar />
           </div>
 
-          <SignedOut>
-            <SignInButton mode="modal">
-              <Button
-                variant="default"
-                className="bg-red-600 hover:bg-red-700 text-white font-medium"
-              >
-                Sign In
-              </Button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
+          {!session ? (
+            <Button
+              variant="default"
+              className="bg-red-600 hover:bg-red-700 text-white font-medium"
+              asChild
+            >
+              <Link href="/sign-in">Sign In</Link>
+            </Button>
+          ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer border-2 border-gray-600 hover:border-white transition-colors">
                   <AvatarImage
-                    src={user?.imageUrl}
-                    alt={user?.fullName || "User"}
+                    src={session.user.image || undefined}
+                    alt={session.user.name || "User"}
                   />
                   <AvatarFallback className="bg-gray-700 text-white">
-                    {user?.firstName?.[0] ?? "U"}
+                    {session.user.name?.[0] ?? "U"}
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
@@ -161,7 +151,7 @@ export function Header() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </SignedIn>
+          )}
 
           {/* Mobile Menu Button */}
           <Button

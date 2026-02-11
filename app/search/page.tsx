@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useUser, SignInButton } from "@clerk/nextjs";
+import { authClient } from "@/lib/auth-client";
 import searchMovies, {
   SearchMovieResult,
   semanticSearchMovies,
@@ -15,7 +15,9 @@ const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 type SearchMode = "regular" | "semantic";
 
 export default function SearchPage() {
-  const { user, isLoaded } = useUser();
+  const { data: session, isPending } = authClient.useSession();
+  const user = session?.user;
+  const isLoaded = !isPending;
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchMovieResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -68,11 +70,9 @@ export default function SearchPage() {
           <h2 className="text-2xl font-bold text-white mb-4">
             Sign in to search movies
           </h2>
-          <SignInButton mode="modal">
-            <button className="bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-2 rounded-lg">
-              Sign In
-            </button>
-          </SignInButton>
+          <Link href="/sign-in" className="bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-2 rounded-lg">
+            Sign In
+          </Link>
         </div>
       </div>
     );

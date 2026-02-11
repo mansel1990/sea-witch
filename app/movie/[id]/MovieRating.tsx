@@ -5,7 +5,7 @@ export default function MovieRating({
   value,
   onChange,
   onDelete,
-  clerkUserId,
+  userId,
   movieId,
   loading,
   title,
@@ -13,7 +13,7 @@ export default function MovieRating({
   value: number | null;
   onChange: (rating: number) => void;
   onDelete?: () => void;
-  clerkUserId?: string;
+  userId?: string;
   movieId?: number;
   loading?: boolean;
   title?: string;
@@ -24,7 +24,7 @@ export default function MovieRating({
         value={value}
         onChange={onChange}
         onDelete={value !== null ? onDelete : undefined}
-        clerkUserId={clerkUserId}
+        userId={userId}
         movieId={movieId}
         title={title}
       />

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
 import { Header } from "../components/Header";
 import ReactQueryProvider from "../components/ReactQueryProvider";
 import { ToastProvider } from "../components/ui/toast";
@@ -43,12 +42,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white min-h-screen`}
       >
         <ReactQueryProvider>
-          <ClerkProvider>
-            <ToastProvider>
-              <Header />
-              <main className="pt-16">{children}</main>
-            </ToastProvider>
-          </ClerkProvider>
+          <ToastProvider>
+            <Header />
+            <main className="pt-16">{children}</main>
+          </ToastProvider>
         </ReactQueryProvider>
       </body>
     </html>

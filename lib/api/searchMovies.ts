@@ -20,13 +20,13 @@ export interface SearchMovieResult {
 
 export async function searchMovies(
   query: string,
-  clerkUserId: string,
+  userId: string,
   signal?: AbortSignal
 ): Promise<SearchMovieResult[]> {
   if (!query.trim()) return [];
   const url = `${API_BASE_URL}/search?q=${encodeURIComponent(
     query
-  )}&clerk_user_id=${clerkUserId}`;
+  )}&user_id=${userId}`;
   const res = await fetch(url, {
     method: "GET",
     headers: {
@@ -41,11 +41,11 @@ export async function searchMovies(
 
 export async function semanticSearchMovies(
   description: string,
-  clerkUserId: string,
+  userId: string,
   signal?: AbortSignal
 ): Promise<SearchMovieResult[]> {
   if (!description.trim()) return [];
-  const url = "https://trailer-production.up.railway.app/semantic-search";
+  const url = `${API_BASE_URL}/semantic-search`;
   const res = await fetch(url, {
     method: "POST",
     headers: {

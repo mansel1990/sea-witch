@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs";
+import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
@@ -12,7 +12,8 @@ import { removeFromWatchlist } from "@/lib/api/removeFromWatchlist";
 import { ArrowLeft, Bookmark, Calendar, Star, Trash2 } from "lucide-react";
 
 export default function WatchlistPage() {
-  const { user } = useUser();
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
   const { showToast } = useToast();
   const [watchlist, setWatchlist] = useState<WatchlistMovie[]>([]);
   const [loading, setLoading] = useState(true);

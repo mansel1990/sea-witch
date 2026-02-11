@@ -1,11 +1,11 @@
 import { create } from "zustand";
 
 interface GlobalState {
-  clerkUserId: string | null;
-  setClerkUserId: (id: string) => void;
+  userId: string | null;
+  setUserId: (id: string) => void;
 }
 
 export const useGlobalStore = create<GlobalState>((set) => ({
-  clerkUserId: null,
-  setClerkUserId: (id) => set({ clerkUserId: id }),
+  userId: null,
+  setUserId: (id) => set({ userId: id }),
 }));

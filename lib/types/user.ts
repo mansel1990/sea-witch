@@ -1,5 +1,5 @@
 export interface AddUserRequest {
-  clerkUserId: string;
+  userId: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -9,7 +9,7 @@ export interface AddUserRequest {
 
 export interface AddUserResponse {
   message: string;
-  clerk_user_id: string;
+  user_id: string;
   username: string;
   status: string;
 }

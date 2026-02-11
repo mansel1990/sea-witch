@@ -6,7 +6,7 @@ export interface RateMovieResponse {
 }
 
 export async function rateMovie(
-  clerkUserId: string,
+  userId: string,
   movieId: number,
   rating: number
 ): Promise<RateMovieResponse> {
@@ -17,7 +17,7 @@ export async function rateMovie(
       accept: "application/json",
     },
     body: JSON.stringify({
-      clerk_user_id: clerkUserId,
+      user_id: userId,
       movie_id: movieId,
       rating,
     }),

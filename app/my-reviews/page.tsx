@@ -1,14 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useUser } from "@clerk/nextjs";
+import { authClient } from "@/lib/auth-client";
 import getUserRatings, { UserRating } from "@/lib/api/getUserRatings";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 
 export default function MyReviewsPage() {
-  const { user, isLoaded } = useUser();
+  const { data: session, isPending } = authClient.useSession();
+  const user = session?.user;
+  const isLoaded = !isPending;
   const [allRatings, setAllRatings] = useState<UserRating[]>([]);
   const [filteredRatings, setFilteredRatings] = useState<UserRating[]>([]);
   const [query, setQuery] = useState("");
